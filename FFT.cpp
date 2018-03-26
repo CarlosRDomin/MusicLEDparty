@@ -5,6 +5,7 @@ bool printFFTdebug = false;
 bool windowFFT = true;
 double fft_real[N_FFT], fft_imag[N_FFT];
 arduinoFFT FFT = arduinoFFT(fft_real, fft_imag, N_FFT, 10e3);	// Create FFT object
+double curr_volume=0, avg_volume=0;
 
 
 /*********************************************/
