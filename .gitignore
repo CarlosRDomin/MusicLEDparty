@@ -1,0 +1,5 @@
+secretDefines.h
+HotTub images/*
+.DS_Store
+.idea/*
+*.pyc

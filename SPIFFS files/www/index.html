@@ -1,0 +1,93 @@
+<!doctype html>
+
+<html lang="en">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> 
+<script>window.jQuery || document.write('<script src="lib/jquery/jquery.min.js"><\/script>')</script>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script> -->
+<!-- <script>window.angular || document.write('<script src="lib/angular/angular.min.js"><\/script>')</script> -->
+<head>
+    <meta charset="utf-8">
+
+    <title>HotTub dashboard</title>
+    <meta name="author" content="Carlitos Ruiz">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body ng-app="myApp" ng-controller="myCtrl">
+    <h1>HotTub dashboard</h1>
+    <div id="hotTubDashboard">
+    	<img src="https://www.dropbox.com/s/85pbsiyk79co7r3/HotTub_lOff_sOff.png?raw=1" longsrc="img/HotTub_lOff_sOff.png" id="imgHotTubOffOff">
+    	<img src="https://www.dropbox.com/s/0cmozjbl3u9s64n/HotTub_lOn_sOff.png?raw=1" longdesc="img/HotTub_lOn_sOff.png" class="imgOff" id="imgHotTubOnOff">
+    	<img src="https://www.dropbox.com/s/g7g996gdo1c7yov/HotTub_lOff_sOn.png?raw=1" longdesc="img/HotTub_lOff_sOn.png" class="imgOff" id="imgHotTubOffOn">
+    	<img src="https://www.dropbox.com/s/tc56yxtpxzx94k8/HotTub_lOn_sOn.png?raw=1" longdesc="img/HotTub_lOn_sOn.png" class="imgOff" id="imgHotTubOnOn">
+    </div>
+    <br><div id="divDebug" style="display: none;"></div>
+
+    <script language="javascript">
+		var pollTimeout = null;
+		$(document).ready(function() {
+			$("#hotTubDashboard img").on("click", imgHotTubStateOnClick);
+			$("#hotTubDashboard img").on("error", imgLoadError);
+			pollTimeout = setTimeout(poll_server, 1);
+		});
+		
+		function getImgHotTubId(lights, sound) {
+			return "imgHotTub" + ((lights)?"On":"Off") + ((sound)?"On":"Off");
+		}
+		
+		function imgLoadError() {
+			var currSrc = $(this).attr("src"); if (!currSrc.startsWith("img/")) return;
+			var retryHeader = "?retry=";
+			var tries = 0;
+			
+			var ind = currSrc.lastIndexOf(retryHeader);
+			if (ind > -1) {
+				tries = parseInt(currSrc.substring(ind + retryHeader.length));
+				currSrc = currSrc.substring(0, ind)
+			}
+			if (isNaN(tries)) tries = 0;	// Just in case something went wrong (shouldn't happen)
+			
+			tries++;
+			if (tries <= 5)
+				$(this).attr("src", currSrc + retryHeader + tries);
+		}
+		
+		function poll_server() {
+			$.getJSON('/txtHotTubState', function (data) {
+				var strShow = getImgHotTubId(data.lights, data.sound);
+				for (var l=0; l<2; l++) {
+					for (var s=0; s<2; s++) {
+						if (getImgHotTubId(l, s) == strShow) {
+							$("#" + getImgHotTubId(l, s)).removeClass("imgOff");
+							$("#" + getImgHotTubId(l, s)).addClass("imgOn");
+						} else {
+							$("#" + getImgHotTubId(l, s)).removeClass("imgOn");
+							$("#" + getImgHotTubId(l, s)).addClass("imgOff");
+						}
+					}
+				}
+			});
+			clearTimeout(pollTimeout);
+			pollTimeout = setTimeout(poll_server, 5000);	// Keep polling every 5s
+		}
+		
+		function imgHotTubStateOnClick(event) {
+			var x = event.offsetX*400/event.target.width, y = event.offsetY*400/event.target.width;	// OLD: event.pageY-this.offsetTop;
+			$("#divDebug")[0].innerHTML = "You clicked at: " + x + "," + y + "<br>";
+			if (0<=x&&x<=400 && 0<=y&&y<=55) {
+				$("#divDebug")[0].innerHTML += "Switch lights!";
+				$.get('/lights_toggle');
+				poll_server();
+			} else if (((0<=x&&x<=80)||(320<=x&&x<=400)) && 75<=y&&y<=175) {
+				$("#divDebug")[0].innerHTML += "Switch sound!";
+				$.get('/sound_toggle');
+				poll_server();
+			}
+		}
+    </script>
+    
+	<!-- <script src="//cdn.jsdelivr.net/mobile-detect.js/1.3.5/mobile-detect.min.js"></script><script language="javascript">var md = new MobileDetect(window.navigator.userAgent); if (!md.mobile()) { document.body.classList.add("bodyOnNonMobile"); }</script> <!-- This script sets body width to a fixed size for non-mobile/tablet browsers (otherwise is 100%) -->
+</body>
+</html>

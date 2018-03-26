@@ -1,0 +1,1 @@
+Thread en Reddit sobre aislar la matriz de LEDs del Arduino con condensadores&resistencias, ademas de añadir un rele [https://www.reddit.com/r/ECE/comments/2qe0u8/safety_regarding_using_a_5v_10a_power_supply_in_a/]
