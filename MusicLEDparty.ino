@@ -36,7 +36,6 @@ void loop() {
 	curr_time = millis();
 	
 	processGPIO();
-	performFFT();
 	processOLED();
 	processLedStrip();
 	processWebServer();

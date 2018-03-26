@@ -392,21 +392,22 @@ int constexpr precompute_strlen(const char* str) {
 }
 
 void processWebServer() {	// "secretSettings.loop()" function: handle incoming OTA connections (if any), secret settings http requests and webSocket events
-	String strMagn = "";
-	for (uint16_t i=0; i<=N_FFT/2; ++i) {
-		strMagn += fft_magn[i];
-		if (i<N_FFT/2) strMagn += ",";
-	}
-
 	static uint32_t last_t_sec = 0;
-//	uint32_t t_sec = (curr_time>>10) % 10;
-//	t_sec = (curr_time>>5) & 0x3;	// Every 32ms
 	uint32_t t_msec = curr_time%1000, t_sec = curr_time/1000, t_min = t_sec/60, t_hr = t_min/60; t_sec %= 60; t_min %= 60;
+//	t_sec = (curr_time>>5) & 0x3;	// Every 32ms
 	if (t_sec != last_t_sec) {
 		last_t_sec = t_sec;
 		consolePrintF("Still alive (t=%3d:%02d'%02d\"); cur vol: %10d, avg vol: %10d; HEAP: %5d B\n", t_hr, t_min, t_sec, int(curr_volume), int(avg_volume), ESP.getFreeHeap());
 	}
-	webSocketFFT.broadcastTXT(strMagn);
+
+	if (adc_buf_got_full) {
+		adc_buf_got_full = false;	// Remember to reset this flag so we only send when the next buffer is full ;)
+		unsigned int buf_id = !adc_buf_id_current;	// Use the *opposite* buffer id of the one being filled currently (so we send the one that's already full)
+
+		performFFT(buf_id);
+
+		webSocketFFT.broadcastBIN(reinterpret_cast<uint8_t*>(fft_real), sizeof(double)*(1 + N_FFT/2));
+	}
 	webSocketFFT.loop();
 	webSocketConsole.loop();
 
