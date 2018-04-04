@@ -406,7 +406,7 @@ void processWebServer() {	// "secretSettings.loop()" function: handle incoming O
 
 		performFFT(buf_id);
 
-		webSocketFFT.broadcastBIN(reinterpret_cast<uint8_t*>(fft_real), sizeof(double)*(1 + N_FFT/2));
+		webSocketFFT.broadcastBIN(reinterpret_cast<uint8_t*>(fft_real), sizeof(fft_real[0])*(1 + N_FFT/2));
 	}
 	webSocketFFT.loop();
 	webSocketConsole.loop();
