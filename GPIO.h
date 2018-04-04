@@ -14,6 +14,9 @@
 #define GPIO_EXP_GPPUB	0x0C	// GPPUB register controls PullUp resistors for input pins in port B: 1=PullUp enabled, 0=disabled
 #define GPIO_EXP_PORTA	0x12	// Command to select Port A (to either write new values to output pins or read inputs)
 #define GPIO_EXP_PORTB	0x13	// Command to select Port B (to either write new values to output pins or read inputs)
+#define RELAY_LIGHTS1	4
+#define RELAY_LIGHTS2	5
+#define RELAY_MUSIC		6
 #define PWMRANGE		1023
 #define ADC_BUF_SIZE	1000
 

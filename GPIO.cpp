@@ -59,6 +59,8 @@ void setupExternalADC() {	// Configure SPI to communicate with the external ADC 
 }
 
 void setupGPIOexpander() {	// Setup MCP23017
+	Wire.begin();	// Initialize I2C library
+	
 	// Configure the values of IODIRA and IODIRB for the I2C GPIO port expander (0=output, 1=input)
 	writeGPIOexpPort(GPIO_EXP_IODIRA, 0x0F);	// A7-A4 -> Selected audio ch; A3-A0 -> Input from audio knob in the front
 	writeGPIOexpPort(GPIO_EXP_IODIRB, 0x00);	// B7-B0 -> Relay control (output)
@@ -144,6 +146,8 @@ void turnLights(bool on, AsyncWebServerRequest* request) {
 	lightsOn = on;
 	digitalWrite(TEMP_PIN_LIGHTS1, !on);
 	digitalWrite(TEMP_PIN_LIGHTS2, !on);
+	setRelay(RELAY_LIGHTS1, on);
+	setRelay(RELAY_LIGHTS2, on);
 
 	turnReplyHtml(TURN_LIGHTS, on, request);
 }
@@ -151,6 +155,7 @@ void turnLights(bool on, AsyncWebServerRequest* request) {
 void turnSound(bool on, AsyncWebServerRequest* request) {
 	soundOn = on;
 	digitalWrite(TEMP_PIN_SOUND, !on);
+	setRelay(RELAY_MUSIC, on);
 
 	turnReplyHtml(TURN_SOUND, on, request);
 }
