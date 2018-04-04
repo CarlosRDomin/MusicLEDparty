@@ -25,6 +25,9 @@ void setupWiFi() {	// "Publicly-visible" initialization routine for WiFi connect
 void connectAP() {	// Configures and enables softAP
 	WiFi.softAPConfig(SOFT_AP_IP, SOFT_AP_IP, SOFT_AP_MASK);
 	WiFi.softAP(SOFT_AP_SSID, SOFT_AP_PASS, SOFT_AP_CH);
+	WiFi.setOutputPower(20);	// 20dBm (max value)
+	WiFi.setAutoConnect(true);
+	WiFi.setAutoReconnect(true);
 	WiFi.enableAP(true);
 	consolePrintF("\nWiFi AP setup as '%s', IP is %s\n", SOFT_AP_SSID, WiFi.softAPIP().toString().c_str());
 }
